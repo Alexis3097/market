@@ -18,6 +18,6 @@ public interface CategoryMapper {
 
    @InheritInverseConfiguration
 //   como vamos a ignorar la lista de productos, debemos decirle
-   @Mapping(target = "productos", ignore = true)
+   @Mapping(target = "producto", ignore = true)
     Categoria toCategoria(Category category);
 }

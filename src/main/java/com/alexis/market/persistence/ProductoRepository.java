@@ -5,6 +5,7 @@ import com.alexis.market.domain.repository.ProductRepository;
 import com.alexis.market.persistence.crud.ProductoCrudRepository;
 import com.alexis.market.persistence.entity.Producto;
 import com.alexis.market.persistence.mapper.ProductMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.stereotype.Repository;
 
@@ -13,8 +14,12 @@ import java.util.Optional;
 
 @Repository
 public class ProductoRepository implements ProductRepository {
-    private ProductoCrudRepository productoCrudRepository;
-    private ProductMapper productMapper;
+    @Autowired
+    private  ProductoCrudRepository productoCrudRepository;
+    @Autowired
+    private  ProductMapper productMapper;
+
+
 
     @Override
     public List<Product> getAll() {
@@ -36,15 +41,10 @@ public class ProductoRepository implements ProductRepository {
 
     @Override
     public Optional<Product> getProduct(Long id) {
-        return productoCrudRepository.findById(id).map(prd -> productMapper.toProduct(prd));
+//        return productoCrudRepository.findById(id).map(prd -> productMapper.toProduct(prd));
+        return productoCrudRepository.findById(id).map(productMapper::toProduct);
     }
 
-
-
-
-    public Optional<List<Producto>> getEscasos(Integer cantidadStock, Boolean estado) {
-        return productoCrudRepository.findByCantidadStockLessThanAndEstado(cantidadStock, estado);
-    }
 
     @Override
     public Product save(Product product) {
