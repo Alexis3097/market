@@ -5,6 +5,7 @@ import com.alexis.market.domain.repository.ProductRepository;
 import com.alexis.market.persistence.crud.ProductoCrudRepository;
 import com.alexis.market.persistence.entity.Producto;
 import com.alexis.market.persistence.mapper.ProductMapper;
+import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,6 +16,7 @@ public class ProductoRepository implements ProductRepository {
     private ProductoCrudRepository productoCrudRepository;
     private ProductMapper productMapper;
 
+    @Override
     public List<Product> getAll() {
         List<Producto> productos = (List<Producto>) productoCrudRepository.findAll();
         return productMapper.toProducts(productos);
@@ -22,40 +24,35 @@ public class ProductoRepository implements ProductRepository {
 
     @Override
     public Optional<List<Product>> getByCategory(Long categoryId) {
-        return Optional.empty();
+        List<Producto> productos = productoCrudRepository.findByIdCategoriaOrderByNombreAsc(categoryId);
+        return Optional.of(productMapper.toProducts(productos));
     }
 
     @Override
     public Optional<List<Product>> getScarseProducts(Integer quantity) {
-        return Optional.empty();
+        Optional<List<Producto>> productos = productoCrudRepository.findByCantidadStockLessThanAndEstado(quantity, true);
+        return productos.map(prod -> productMapper.toProducts(prod));
     }
 
     @Override
     public Optional<Product> getProduct(Long id) {
-        return Optional.empty();
+        return productoCrudRepository.findById(id).map(prd -> productMapper.toProduct(prd));
     }
 
-    @Override
-    public Product save(Product product) {
-        return null;
-    }
 
-    public List<Producto> getByIdCategoria(int idCategoria) {
-        return productoCrudRepository.findByIdCategoriaOrderByNombreAsc(idCategoria);
-    }
+
 
     public Optional<List<Producto>> getEscasos(Integer cantidadStock, Boolean estado) {
         return productoCrudRepository.findByCantidadStockLessThanAndEstado(cantidadStock, estado);
     }
 
-    public Optional<Producto> getProducto(Long id) {
-        return productoCrudRepository.findById(id);
+    @Override
+    public Product save(Product product) {
+        Producto producto = productMapper.toProducto(product);
+        return productMapper.toProduct(productoCrudRepository.save(producto));
     }
 
-    public Producto save(Producto producto) {
-        return productoCrudRepository.save(producto);
-    }
-
+    @Override
     public void delete(Long id) {
         productoCrudRepository.deleteById(id);
     }
